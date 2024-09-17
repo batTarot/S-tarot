@@ -3,129 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="index.css" rel="stylesheet" type="text/css" />
     <title>타로 카드 뽑기</title>
-    
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
     <div class="container">
-        <h1>오늘의 데일리~</h1>
-        <button id="cardBtn" onclick="drawCard()">누르시오</button>
-        <div id="cardResult"></div>
+        <h1>Title</h1>
+        <button id="cardBtn" onclick="drawCard()">❤️</button>
         <img id="cardImage" src="" alt="타로 카드" style="display: none;">
+        <div id="cardResult"></div>
+
+        <div id="main-div"> 
+            <button id="main-btn" onclick="showModal('notice')">❤️ 주의문</button>
+        </div>
+        <div id="main-div1"> 
+            <button id="main-btn1" onclick="showModal('howToUse')">❤️ 사용 설명서</button>
+        </div>
+        <div id="main-div2"> 
+            <button id="main-btn2" onclick="showModal('interesting')">❤️ 제작자 설명</button>
+        </div>        
+        <button id="backBtn" onclick="goBack()" style="display: none;">뒤로가기</button>
+ 
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 타로 카드 리딩.</p>
-            <div class="social-links">
-                <!-- <a href="http://pf.kakao.com/_xmzxjqb" target="_blank">카카오톡 채널</a> -->
-            </div>
+    <!-- 모달 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title"></h2>
+            <p id="modal-text"></p>
         </div>
-    </footer>
+    </div>
+    <script src="./tarotData.js"></script>
     <script>
-        const tarotCards = [
-            // 메이저 아르카나 (0-21)
-            { name: "바보", meaning: "새로운 시작, 순수함, 모험", image: "images/0.png" },
-            { name: "마법사", meaning: "창의력, 기술, 의지력", image: "images/1.png" },
-            { name: "여사제", meaning: "직관, 지혜, 비밀", image: "images/2.png" },
-            { name: "여황제", meaning: "풍요, 안정, 모성", image: "images/3.png" },
-            { name: "황제", meaning: "권위, 구조, 통제", image: "images/4.png" },
-            { name: "교황", meaning: "전통, 신념, 조언", image: "images/5.png" },
-            { name: "연인", meaning: "사랑, 조화, 관계", image: "images/6.png" },
-            { name: "전차", meaning: "의지, 승리, 행동", image: "images/7.png" },
-            { name: "힘", meaning: "용기, 인내, 영향력", image: "images/8.png" },
-            { name: "은둔자", meaning: "내면의 성찰, 고독, 지혜", image: "images/9.png" },
-            { name: "운명의 수레바퀴", meaning: "운명, 순환, 전환점", image: "images/10.png" },
-            { name: "정의", meaning: "균형, 공정, 진실", image: "images/11.png" },
-            { name: "매달린 사람", meaning: "희생, 새로운 관점, 중단", image: "images/12.png" },
-            { name: "죽음", meaning: "종말, 변화, 변형", image: "images/13.png" },
-            { name: "절제", meaning: "균형, 중용, 결합", image: "images/14.png" },
-            { name: "악마", meaning: "속박, 중독, 욕망", image: "images/15.png" },
-            { name: "탑", meaning: "갑작스러운 변화, 혼란, 계시", image: "images/16.png" },
-            { name: "별", meaning: "희망, 영감, 평온", image: "images/17.png" },
-            { name: "달", meaning: "환상, 불안, 직관", image: "images/18.png" },
-            { name: "태양", meaning: "성공, 활력, 기쁨", image: "images/19.png" },
-            { name: "심판", meaning: "부활, 각성, 갱신", image: "images/20.png" },
-            { name: "세계", meaning: "완성, 통합, 성취", image: "images/21.png" },
+        // 모달 관련 요소들
+        var modal = document.getElementById("modal");
+        var modalTitle = document.getElementById("modal-title");
+        var modalText = document.getElementById("modal-text");
+        var span = document.getElementsByClassName("close")[0];
 
-            // 마이너 아르카나
-            // 완드 (w)
-            { name: "완드의 에이스", meaning: "창조, 영감, 새로운 시작", image: "images/aw.png" },
-            { name: "완드의 2", meaning: "발견, 결정, 계획", image: "images/2w.png" },
-            { name: "완드의 3", meaning: "준비, 확장, 성장", image: "images/3w.png" },
-            { name: "완드의 4", meaning: "안정, 조화, 번영", image: "images/4w.png" },
-            { name: "완드의 5", meaning: "경쟁, 갈등, 도전", image: "images/5w.png" },
-            { name: "완드의 6", meaning: "승리, 성공, 인정", image: "images/6w.png" },
-            { name: "완드의 7", meaning: "용기, 결단, 우위", image: "images/7w.png" },
-            { name: "완드의 8", meaning: "활동, 움직임, 신속", image: "images/8w.png" },
-            { name: "완드의 9", meaning: "준비, 강함, 방어", image: "images/9w.png" },
-            { name: "완드의 10", meaning: "부담, 책임, 완성", image: "images/10w.png" },
-            { name: "완드의 페이지", meaning: "열정, 탐험, 발견", image: "images/pw.png" },
-            { name: "완드의 기사", meaning: "행동, 모험, 충동", image: "images/kw.png" },
-            { name: "완드의 퀸", meaning: "열정, 자신감, 매력", image: "images/qw.png" },
-            { name: "완드의 킹", meaning: "비전, 리더십, 정직", image: "images/kw.png" },
+        // 모달 표시 함수
+        function showModal(type) {
+            if(type === 'notice') {
+                modalTitle.textContent = "주의문";
+                modalText.textContent = "본 프로그램은 성의 광범위한 조언을 주는 타로로, 어떤 방식으로든 성인 인증이 완료된 후원자만 사용 가능합니다. 후원자(사용자)가 성인임을 전제하며 미성년자 사용시 타인의 신분증 도용, 대리 인증을 실행하였음을 간주합니다. 모든 법적 책임 소지는 미성년 후원자(사용자)에게 있으며 제작자는 일절 책임지지 않음을 고지합니다.";
+                
+            } else if (type === 'howToUse') {
+                modalTitle.textContent = "사용방법";
+                modalText.textContent = "키스부터 애무, 유사 성행위, 삽입 성행위, 후희까지 잠자리에 관한 전반적인 조언이 필요할 때 사용합니다. 여성 친화적인 해설로, 카드를 뽑는 당사자가 남성일 시 정확도가 떨어질 수 있습니다. 데일리 운세가 아닌 만큼 오늘 특정 관계에서 잠자리 이슈 발생 유무가 궁금할 때는 적합하지 않습니다.";
 
-            // 컵 (c)
-            { name: "컵의 에이스", meaning: "감정, 직관, 관계의 시작", image: "images/ac.png" },
-            { name: "컵의 2", meaning: "파트너십, 사랑, 균형", image: "images/2c.png" },
-            { name: "컵의 3", meaning: "축하, 우정, 공동체", image: "images/3c.png" },
-            { name: "컵의 4", meaning: "명상, 재평가, 내면의 평화", image: "images/4c.png" },
-            { name: "컵의 5", meaning: "상실, 후회, 실망", image: "images/5c.png" },
-            { name: "컵의 6", meaning: "회상, 향수, 재결합", image: "images/6c.png" },
-            { name: "컵의 7", meaning: "선택, 환상, 현실 도피", image: "images/7c.png" },
-            { name: "컵의 8", meaning: "변화, 움직임, 떠남", image: "images/8c.png" },
-            { name: "컵의 9", meaning: "만족, 행복, 충족", image: "images/9c.png" },
-            { name: "컵의 10", meaning: "조화, 행복한 가정, 완성된 사랑", image: "images/10c.png" },
-            { name: "컵의 페이지", meaning: "창의성, 직관, 새로운 아이디어", image: "images/pc.png" },
-            { name: "컵의 기사", meaning: "로맨스, 매력, 상상력", image: "images/kc.png" },
-            { name: "컵의 퀸", meaning: "연민, 감성 지능, 관계", image: "images/qc.png" },
-            { name: "컵의 킹", meaning: "감정적 통제, 동정심, 조언", image: "images/kc.png" },
+            } else if (type === 'interesting') {
+                modalTitle.textContent = "제작자 설명";
+                modalText.textContent = "content none -> 추후 삽입 예정";
+            }
+            modal.style.display = "block";
+        }
 
-            // 검 (s)
-            { name: "검의 에이스", meaning: "명확성, 진실, 돌파구", image: "images/as.png" },
-            { name: "검의 2", meaning: "결정, 균형, 중재", image: "images/2s.png" },
-            { name: "검의 3", meaning: "상처, 배신, 고통", image: "images/3s.png" },
-            { name: "검의 4", meaning: "휴식, 회복, 명상", image: "images/4s.png" },
-            { name: "검의 5", meaning: "갈등, 경쟁, 패배", image: "images/5s.png" },
-            { name: "검의 6", meaning: "전환, 회복, 여행", image: "images/6s.png" },
-            { name: "검의 7", meaning: "속임수, 전략, 비밀", image: "images/7s.png" },
-            { name: "검의 8", meaning: "제한, 속박, 자기 의심", image: "images/8s.png" },
-            { name: "검의 9", meaning: "불안, 걱정, 악몽", image: "images/9s.png" },
-            { name: "검의 10", meaning: "파괴, 고통, 배신", image: "images/10s.png" },
-            { name: "검의 페이지", meaning: "호기심, 민첩함, 새로운 아이디어", image: "images/ps.png" },
-            { name: "검의 기사", meaning: "용기, 행동, 결단력", image: "images/ks.png" },
-            { name: "검의 퀸", meaning: "독립, 지성, 직접적", image: "images/qs.png" },
-            { name: "검의 킹", meaning: "지성, 권위, 진실", image: "images/ks.png" },
+        // 모달 닫기
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
 
-            // 펜타클 (p)
-            { name: "펜타클의 에이스", meaning: "기회, 번영, 새로운 벤처", image: "images/ap.png" },
-            { name: "펜타클의 2", meaning: "균형, 적응, 시간 관리", image: "images/2p.png" },
-            { name: "펜타클의 3", meaning: "팀워크, 협력, 숙련", image: "images/3p.png" },
-            { name: "펜타클의 4", meaning: "보안, 보존, 검약", image: "images/4p.png" },
-            { name: "펜타클의 5", meaning: "고난, 고립, 걱정", image: "images/5p.png" },
-            { name: "펜타클의 6", meaning: "관대함, 선물, 번영", image: "images/6p.png" },
-            { name: "펜타클의 7", meaning: "인내, 투자, 비전", image: "images/7p.png" },
-            { name: "펜타클의 8", meaning: "기술, 재능, 숙련", image: "images/8p.png" },
-            { name: "펜타클의 9", meaning: "풍요, 사치, 자급자족", image: "images/9p.png" },
-            { name: "펜타클의 10", meaning: "재정적 안정, 가족, 전통", image: "images/10p.png" },
-            { name: "펜타클의 페이지", meaning: "기회, 학습, 재정적 뉴스", image: "images/pp.png" },
-            { name: "펜타클의 기사", meaning: "근면, 생산성, 책임", image: "images/kp.png" },
-            { name: "펜타클의 퀸", meaning: "풍요, 안전, 실용성", image: "images/qp.png" },
-            { name: "펜타클의 킹", meaning: "풍요, 사업 수완, 실용적 리더십", image: "images/kp.png" }
-        ];
-
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
         function drawCard() {
-            const cardBtn = document.getElementById('cardBtn');
-            const randomCard = tarotCards[Math.floor(Math.random() * tarotCards.length)];
-            const resultDiv = document.getElementById('cardResult');
-            const cardImage = document.getElementById('cardImage');
+            var cardBtn = document.getElementById('cardBtn');
+            var randomCard = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+            var resultDiv = document.getElementById('cardResult');
+            var cardImage = document.getElementById('cardImage');
+            var mainDiv = document.getElementById('main-div');
+            var mainDiv1 = document.getElementById('main-div1');
+            var mainDiv2 = document.getElementById('main-div2');
+            var backBtn = document.getElementById('backBtn');
             
             cardBtn.style.display = 'none';
+            mainDiv.style.display = 'none';
+            mainDiv1.style.display = 'none';
+            mainDiv2.style.display = 'none';
+            backBtn.style.display = 'block';
 
-            resultDiv.innerHTML = `<h2>${randomCard.name}</h2><p>${randomCard.meaning}</p>`;
+            resultDiv.innerHTML = '<h2>' + randomCard.name + '</h2><p>' + randomCard.meaning + '</p>';
             cardImage.src = randomCard.image;
             cardImage.style.display = 'block';
+        }
+
+        function goBack() {
+            var cardBtn = document.getElementById('cardBtn');
+            var resultDiv = document.getElementById('cardResult');
+            var cardImage = document.getElementById('cardImage');
+            var mainDiv = document.getElementById('main-div');
+            var mainDiv1 = document.getElementById('main-div1');
+            var mainDiv2 = document.getElementById('main-div2');
+            var backBtn = document.getElementById('backBtn');
+            
+            cardBtn.style.display = 'block';
+            mainDiv.style.display = 'block';
+            mainDiv1.style.display = 'block';
+            mainDiv2.style.display = 'block';
+            backBtn.style.display = 'none';
+
+            resultDiv.innerHTML = '';
+            cardImage.style.display = 'none';
+            cardImage.src = '';
         }
     </script>
 </body>

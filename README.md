@@ -1,2 +1,1 @@
 # S-tarot
-# S-tarot
