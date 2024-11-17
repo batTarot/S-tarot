@@ -13,7 +13,15 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-image: url("./bgimg.png");
+    background-image: url("./backgroundImg.png");
+
+  /* 이미지 크기 조절 */
+  background-size: cover;  
+  /* 이미지 반복 여부 */
+  background-repeat: no-repeat;
+  /* 이미지 위치 조정 */
+  background-position: center center;
+  will-change: transform; /* 브라우저에게 변환 최적화 힌트 제공 */
 }
 
 h1, h2, h3 {
