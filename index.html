@@ -3,112 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>타로 카드 뽑기</title>
-    <link rel="stylesheet" href="./style.css">
+    <title>Three Cards</title>
+    <script src="tarotData.js"></script>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #ffcc80;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #2c2c2c;
+            border-radius: 10px;
+        }
+        #endBtn {
+            background: #d65a5a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        input, textarea {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+        .cards {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            position: relative;
+        }
+        .card {
+            width: 100px;
+            height: 150px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            position: relative;
+        }
+        .card-label {
+            position: absolute;
+            top: -20px;
+            text-align: center;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .copy-box {
+            margin-top: 20px;
+            padding: 10px;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Title</h1>
-        <button id="cardBtn" onclick="drawCard()">❤️</button>
-        <img id="cardImage" src="" alt="타로 카드" style="display: none;">
-        <div id="cardResult"></div>
-
-        <div id="main-div"> 
-            <button id="main-btn" onclick="showModal('notice')">❤️ 주의문</button>
+        <h1>THREE CARDS</h1>
+        
+        <textarea id="question" placeholder="질문을 입력하세요..."></textarea>
+        <button id = "endBtn" onclick="drawCards()">완료</button>
+        <div class="cards">
+            <div class="card" id="card1">
+                <input class ="card-label" type="text" id="label1" placeholder="1자리 라벨 입력">
+            </div>
+            <div class="card" id="card2">
+                <input class ="card-label" type="text" id="label2" placeholder="2자리 라벨 입력">
+            </div>
+            <div class="card" id="card3">
+                <input class ="card-label" type="text" id="label3" placeholder="3자리 라벨 입력">
+            </div>
         </div>
-        <div id="main-div1"> 
-            <button id="main-btn1" onclick="showModal('howToUse')">❤️ 사용 설명서</button>
-        </div>
-        <div id="main-div2"> 
-            <button id="main-btn2" onclick="showModal('interesting')">❤️ 제작자 설명</button>
-        </div>        
-        <button id="backBtn" onclick="goBack()" style="display: none;">뒤로가기</button>
- 
-    </div>
-
-    <!-- 모달 -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="modal-title"></h2>
-            <p id="modal-text"></p>
+        <div class="copy-box">
+            <p id="copyText"></p>
+            <button onclick="copyToClipboard()">복사</button>
         </div>
     </div>
-    <script src="./tarotData.js"></script>
+
     <script>
-        // 모달 관련 요소들
-        var modal = document.getElementById("modal");
-        var modalTitle = document.getElementById("modal-title");
-        var modalText = document.getElementById("modal-text");
-        var span = document.getElementsByClassName("close")[0];
-
-        // 모달 표시 함수
-        function showModal(type) {
-            if(type === 'notice') {
-                modalTitle.textContent = "주의문";
-                modalText.textContent = "본 프로그램은 성의 광범위한 조언을 주는 타로로, 어떤 방식으로든 성인 인증이 완료된 후원자만 사용 가능합니다. 후원자(사용자)가 성인임을 전제하며 미성년자 사용시 타인의 신분증 도용, 대리 인증을 실행하였음을 간주합니다. 모든 법적 책임 소지는 미성년 후원자(사용자)에게 있으며 제작자는 일절 책임지지 않음을 고지합니다.";
-                
-            } else if (type === 'howToUse') {
-                modalTitle.textContent = "사용방법";
-                modalText.textContent = "키스부터 애무, 유사 성행위, 삽입 성행위, 후희까지 잠자리에 관한 전반적인 조언이 필요할 때 사용합니다. 여성 친화적인 해설로, 카드를 뽑는 당사자가 남성일 시 정확도가 떨어질 수 있습니다. 데일리 운세가 아닌 만큼 오늘 특정 관계에서 잠자리 이슈 발생 유무가 궁금할 때는 적합하지 않습니다.";
-
-            } else if (type === 'interesting') {
-                modalTitle.textContent = "제작자 설명";
-                modalText.textContent = "content none -> 추후 삽입 예정";
+        function drawCards() {
+            if (!tarotCards || tarotCards.length < 3) {
+                console.error("tarotData.js 파일이 로드되지 않았거나 카드가 부족합니다.");
+                return;
             }
-            modal.style.display = "block";
-        }
 
-        // 모달 닫기
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // 모달 외부 클릭 시 닫기
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
+            let selectedCards = [];
+            while (selectedCards.length < 3) {
+                let randomIndex = Math.floor(Math.random() * tarotCards.length);
+                let card = tarotCards[randomIndex];
+                if (!selectedCards.includes(card)) {
+                    selectedCards.push(card);
+                }
             }
-        }
-        function drawCard() {
-            var cardBtn = document.getElementById('cardBtn');
-            var randomCard = tarotCards[Math.floor(Math.random() * tarotCards.length)];
-            var resultDiv = document.getElementById('cardResult');
-            var cardImage = document.getElementById('cardImage');
-            var mainDiv = document.getElementById('main-div');
-            var mainDiv1 = document.getElementById('main-div1');
-            var mainDiv2 = document.getElementById('main-div2');
-            var backBtn = document.getElementById('backBtn');
             
-            cardBtn.style.display = 'none';
-            mainDiv.style.display = 'none';
-            mainDiv1.style.display = 'none';
-            mainDiv2.style.display = 'none';
-            backBtn.style.display = 'block';
-
-            resultDiv.innerHTML = '<h2>' + randomCard.name + '</h2><p>' + randomCard.meaning + '</p>';
-            cardImage.src = randomCard.image;
-            cardImage.style.display = 'block';
+            let labels = [
+                document.getElementById("label1").value || "1자리",
+                document.getElementById("label2").value || "2자리",
+                document.getElementById("label3").value || "3자리"
+            ];
+            
+            for (let i = 0; i < 3; i++) {
+                let cardElement = document.getElementById(`card${i + 1}`);
+                let labelElement = document.getElementById(`label${i + 1}`);
+                cardElement.style.backgroundImage = `url(${selectedCards[i].image})`;
+                cardElement.style.backgroundSize = 'cover';
+                labelElement.textContent = labels[i];
+            }
+            
+            let copyText = `${document.getElementById("question").value} 이라는 질문으로 점을 보려고 3카드 스프레드를 사용해서 타로카드를 뽑았다. 뽑은 카드는 ${selectedCards[0].name}(${labels[0]}) / ${selectedCards[1].name}(${labels[1]}) / ${selectedCards[2].name}(${labels[2]}) 이다. 이 타로카드 배열을 어떻게 해석해야 할까?`;
+            document.getElementById("copyText").textContent = copyText;
         }
 
-        function goBack() {
-            var cardBtn = document.getElementById('cardBtn');
-            var resultDiv = document.getElementById('cardResult');
-            var cardImage = document.getElementById('cardImage');
-            var mainDiv = document.getElementById('main-div');
-            var mainDiv1 = document.getElementById('main-div1');
-            var mainDiv2 = document.getElementById('main-div2');
-            var backBtn = document.getElementById('backBtn');
-            
-            cardBtn.style.display = 'block';
-            mainDiv.style.display = 'block';
-            mainDiv1.style.display = 'block';
-            mainDiv2.style.display = 'block';
-            backBtn.style.display = 'none';
-
-            resultDiv.innerHTML = '';
-            cardImage.style.display = 'none';
-            cardImage.src = '';
+        function copyToClipboard() {
+            let text = document.getElementById("copyText").textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("복사되었습니다!");
+            });
         }
     </script>
 </body>
